@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Edit Profile – UniTrade{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6 fade-up">
+        <div class="card p-4">
+            <div class="mb-4">
+                <h2 style="font-weight:800;letter-spacing:-0.5px;"><i class="fas fa-user-edit me-2" style="color:var(--c-primary);"></i>Edit Profile</h2>
+            </div>
+
+            <form method="post" action="{{ url_for('edit_profile') }}" enctype="multipart/form-data">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label class="form-label">First Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}" required>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}" required>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">University</label>
+                        <input type="text" class="form-control" name="university" value="{{ user.university or '' }}">
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Student ID</label>
+                        <input type="text" class="form-control" name="student_id" value="{{ user.student_id or '' }}">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" name="phone" value="{{ user.phone or '' }}" placeholder="+256 700 000000">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Bio</label>
+                        <textarea class="form-control" name="bio" rows="3" placeholder="Tell other students about yourself…">{{ user.bio or '' }}</textarea>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Profile Picture</label>
+                        {% if user.profile_pic %}
+                        <div class="mb-2">
+                            <img src="{{ url_for('static', filename=user.profile_pic) }}"
+                                 style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--c-border);">
+                        </div>
+                        {% endif %}
+                        <input type="file" class="form-control" name="profile_pic" accept=".png,.jpg,.jpeg,.webp" onchange="previewImg(event)">
+                        <div id="imgPrev" style="display:none;margin-top:0.5rem;">
+                            <img id="prevImg" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid var(--c-primary);">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary flex-grow-1">Cancel</a>
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="fas fa-save me-1"></i>Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function previewImg(e) {
+    const f = e.target.files[0]; if (!f) return;
+    const r = new FileReader();
+    r.onload = ev => { document.getElementById('prevImg').src = ev.target.result; document.getElementById('imgPrev').style.display = 'block'; };
+    r.readAsDataURL(f);
+}
+</script>
+{% endblock %}

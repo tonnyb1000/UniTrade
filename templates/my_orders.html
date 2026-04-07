@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block title %}My Orders – UniTrade{% endblock %}
+
+{% block content %}
+<h1 class="section-title mb-4 fade-up"><i class="fas fa-clipboard-list me-2" style="color:var(--c-primary);"></i>My Orders</h1>
+
+<!-- Tabs -->
+<ul class="nav nav-pills mb-4 fade-up" id="orderTabs">
+    <li class="nav-item">
+        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#buyingTab"
+                style="background:rgba(108,99,255,0.1);color:var(--c-muted);border:1px solid var(--c-border);">
+            <i class="fas fa-shopping-bag me-1"></i>Buying
+            <span class="badge bg-primary ms-1">{{ buyer_orders|length }}</span>
+        </button>
+    </li>
+    <li class="nav-item ms-2">
+        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#sellingTab"
+                style="background:rgba(108,99,255,0.1);color:var(--c-muted);border:1px solid var(--c-border);">
+            <i class="fas fa-store me-1"></i>Selling
+            <span class="badge bg-success ms-1">{{ seller_orders|length }}</span>
+        </button>
+    </li>
+</ul>
+
+<!-- Nav pill active styles -->
+<style>
+.nav-pills .nav-link.active {
+    background: var(--c-primary) !important;
+    color: #fff !important;
+    border-color: var(--c-primary) !important;
+}
+</style>
+
+<div class="tab-content">
+    <!-- BUYING -->
+    <div class="tab-pane fade show active" id="buyingTab">
+        {% if buyer_orders %}
+        {% for order in buyer_orders %}
+        <div class="card mb-3 fade-up" style="animation-delay:{{ loop.index0*0.04 }}s;">
+            <div class="card-body p-3">
+                <div class="row align-items-center g-3">
+                    <div class="col-auto">
+                        <img src="{{ url_for('static', filename=order.image_url) }}"
+                             style="width:64px;height:64px;object-fit:cover;border-radius:var(--radius-sm);"
+                             alt="{{ order.title }}"
+                             onerror="this.src='https://placehold.co/64x64/1a1d27/6c63ff?text=?'">
+                    </div>
+                    <div class="col">
+                        <div style="font-weight:700;">{{ order.title }}</div>
+                        <div style="font-size:0.8rem;color:var(--c-muted);">
+                            Seller: {{ order.seller_name }} ·
+                            <i class="fas fa-tag me-1"></i>{{ order.category }}
+                        </div>
+                        <div style="font-size:0.8rem;color:var(--c-muted);">
+                            <i class="fas fa-map-marker-alt me-1"></i>{{ order.meeting_location or 'TBD' }}
+                            {% if order.meeting_time %}
+                            · <i class="fas fa-clock me-1"></i>{{ order.meeting_time.strftime('%d %b %Y, %H:%M') }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-auto text-end">
+                        <div class="item-price mb-1">UGX {{ "{:,.0f}".format(order.price) }}</div>
+                        <span class="badge
+                            {% if order.status=='completed' %}bg-success
+                            {% elif order.status=='cancelled' %}bg-secondary
+                            {% elif order.status=='accepted' %}bg-info
+                            {% else %}bg-warning text-dark{% endif %}">
+                            {{ order.status|title }}
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Buyer: cancel pending -->
+                {% if order.status == 'pending' %}
+                <div class="mt-2 pt-2" style="border-top:1px solid var(--c-border);">
+                    <form action="{{ url_for('update_order_status', transaction_id=order.id, status='cancelled') }}" method="post"
+                          onsubmit="return confirm('Cancel this order?');" class="d-inline">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-times me-1"></i>Cancel Order
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+
+                <!-- Review button for completed orders -->
+                {% if order.status == 'completed' %}
+                <div class="mt-2 pt-2" style="border-top:1px solid var(--c-border);">
+                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse"
+                            data-bs-target="#review-{{ order.id }}">
+                        <i class="fas fa-star me-1"></i>Leave Review
+                    </button>
+                    <div class="collapse mt-2" id="review-{{ order.id }}">
+                        <form action="{{ url_for('submit_review', transaction_id=order.id) }}" method="post">
+                            <div class="mb-2">
+                                <label class="form-label" style="font-size:0.8rem;">Rating</label>
+                                <div class="d-flex gap-1">
+                                    {% for i in range(1,6) %}
+                                    <input type="radio" name="rating" value="{{ i }}" id="r{{ order.id }}_{{ i }}" class="d-none" required>
+                                    <label for="r{{ order.id }}_{{ i }}" class="star-label" style="font-size:1.5rem;cursor:pointer;color:var(--c-surface2);">★</label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <textarea class="form-control mb-2" name="comment" rows="2" placeholder="Optional comment…" style="font-size:0.875rem;"></textarea>
+                            <button type="submit" class="btn btn-primary btn-sm">Submit Review</button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="card text-center py-5 fade-up">
+            <i class="fas fa-shopping-bag fa-3x mb-3" style="color:var(--c-muted);"></i>
+            <h5>No purchases yet</h5>
+            <p class="text-muted">Browse the marketplace and make your first purchase!</p>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-primary mx-auto" style="max-width:180px;">Browse Items</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- SELLING -->
+    <div class="tab-pane fade" id="sellingTab">
+        {% if seller_orders %}
+        {% for order in seller_orders %}
+        <div class="card mb-3 fade-up" style="animation-delay:{{ loop.index0*0.04 }}s;">
+            <div class="card-body p-3">
+                <div class="row align-items-center g-3">
+                    <div class="col-auto">
+                        <img src="{{ url_for('static', filename=order.image_url) }}"
+                             style="width:64px;height:64px;object-fit:cover;border-radius:var(--radius-sm);"
+                             alt="{{ order.title }}"
+                             onerror="this.src='https://placehold.co/64x64/1a1d27/6c63ff?text=?'">
+                    </div>
+                    <div class="col">
+                        <div style="font-weight:700;">{{ order.title }}</div>
+                        <div style="font-size:0.8rem;color:var(--c-muted);">
+                            Buyer: <strong style="color:var(--c-text);">{{ order.buyer_name }}</strong> ·
+                            {{ order.category }}
+                        </div>
+                        <div style="font-size:0.8rem;color:var(--c-muted);">
+                            <i class="fas fa-map-marker-alt me-1"></i>{{ order.meeting_location or 'TBD' }}
+                            {% if order.meeting_time %}
+                            · <i class="fas fa-clock me-1"></i>{{ order.meeting_time.strftime('%d %b %Y, %H:%M') }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-auto text-end">
+                        <div class="item-price mb-1">UGX {{ "{:,.0f}".format(order.price) }}</div>
+                        <span class="badge
+                            {% if order.status=='completed' %}bg-success
+                            {% elif order.status=='cancelled' %}bg-secondary
+                            {% elif order.status=='accepted' %}bg-info
+                            {% else %}bg-warning text-dark{% endif %}">
+                            {{ order.status|title }}
+                        </span>
+                    </div>
+                </div>
+
+                {% if order.status in ('pending', 'accepted') %}
+                <div class="d-flex gap-2 mt-2 pt-2" style="border-top:1px solid var(--c-border);">
+                    {% if order.status == 'pending' %}
+                    <form action="{{ url_for('update_order_status', transaction_id=order.id, status='accepted') }}" method="post">
+                        <button type="submit" class="btn btn-info btn-sm">
+                            <i class="fas fa-thumbs-up me-1"></i>Accept
+                        </button>
+                    </form>
+                    {% endif %}
+                    <form action="{{ url_for('update_order_status', transaction_id=order.id, status='completed') }}" method="post">
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="fas fa-check me-1"></i>Mark Complete
+                        </button>
+                    </form>
+                    <form action="{{ url_for('update_order_status', transaction_id=order.id, status='cancelled') }}" method="post"
+                          onsubmit="return confirm('Cancel this order?');">
+                        <button type="submit" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="card text-center py-5 fade-up">
+            <i class="fas fa-store fa-3x mb-3" style="color:var(--c-muted);"></i>
+            <h5>No sales yet</h5>
+            <p class="text-muted">List your items to start selling!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Star rating interaction
+document.querySelectorAll('.star-label').forEach((star, idx, stars) => {
+    star.addEventListener('mouseover', () => {
+        stars.forEach((s, i) => s.style.color = i <= idx ? '#f59e0b' : 'var(--c-surface2)');
+    });
+    star.addEventListener('mouseout', () => {
+        const checked = document.querySelector(`input[name="rating"]:checked`);
+        const val = checked ? parseInt(checked.value) - 1 : -1;
+        stars.forEach((s, i) => s.style.color = i <= val ? '#f59e0b' : 'var(--c-surface2)');
+    });
+    star.addEventListener('click', () => {
+        stars.forEach((s, i) => s.style.color = i <= idx ? '#f59e0b' : 'var(--c-surface2)');
+    });
+});
+</script>
+{% endblock %}

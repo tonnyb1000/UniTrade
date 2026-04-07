@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – UniTrade{% endblock %}
+
+{% block content %}
+<!-- Header row -->
+<div class="d-flex align-items-center justify-content-between mb-4 fade-up">
+    <div>
+        <h1 class="section-title mb-0">Dashboard</h1>
+        <p style="color:var(--c-muted);font-size:0.875rem;margin:0;">Welcome back, {{ session.first_name }}! 👋</p>
+    </div>
+    {% if current_mode == 'seller' %}
+    <a href="{{ url_for('add_item') }}" class="btn btn-success pulse-btn">
+        <i class="fas fa-plus me-1"></i> Add Item
+    </a>
+    {% endif %}
+</div>
+
+<!-- Stats row -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3 fade-up delay-1">
+        <div class="stat-card purple">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-num" id="stat-active">…</div>
+                    <div class="stat-label">Active Listings</div>
+                </div>
+                <i class="fas fa-box-open stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 fade-up delay-2">
+        <div class="stat-card teal">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-num" id="stat-earnings">…</div>
+                    <div class="stat-label">Total Earnings</div>
+                </div>
+                <i class="fas fa-wallet stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 fade-up delay-3">
+        <div class="stat-card pink">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-num" id="stat-purchases">…</div>
+                    <div class="stat-label">Purchases</div>
+                </div>
+                <i class="fas fa-shopping-bag stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3 fade-up delay-4">
+        <div class="stat-card orange">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="stat-num" id="stat-pending">…</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <i class="fas fa-clock stat-icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mode switcher sidebar + content -->
+<div class="row g-4">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+        <div class="card p-3 mb-3 fade-up">
+            <h6 style="font-weight:700;margin-bottom:1rem;color:var(--c-muted);text-transform:uppercase;font-size:0.72rem;letter-spacing:1px;">Trading Mode</h6>
+            <div class="d-grid gap-2">
+                <a href="{{ url_for('switch_mode', mode='buyer') }}"
+                   class="btn {% if current_mode=='buyer' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                    <i class="fas fa-shopping-cart me-1"></i> Buyer
+                </a>
+                <a href="{{ url_for('switch_mode', mode='seller') }}"
+                   class="btn {% if current_mode=='seller' %}btn-success{% else %}btn-outline-secondary{% endif %}">
+                    <i class="fas fa-store me-1"></i> Seller
+                </a>
+            </div>
+        </div>
+
+        <div class="card p-3 fade-up delay-1">
+            <h6 style="font-weight:700;margin-bottom:0.75rem;color:var(--c-muted);text-transform:uppercase;font-size:0.72rem;letter-spacing:1px;">Quick Links</h6>
+            <div class="d-grid gap-2">
+                <a href="{{ url_for('cart') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-shopping-cart me-1"></i> Cart
+                    <span class="badge bg-danger ms-1">{{ session.cart|length if session.cart else 0 }}</span>
+                </a>
+                <a href="{{ url_for('my_orders') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-clipboard-list me-1"></i> My Orders
+                </a>
+                <a href="{{ url_for('wishlist') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-heart me-1 text-danger"></i> Wishlist
+                </a>
+                <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-id-card me-1"></i> Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content area -->
+    <div class="col-md-9">
+        {% if current_mode == 'buyer' %}
+            <!-- Search bar quick filter -->
+            <form class="d-flex gap-2 mb-4 fade-up" action="{{ url_for('search') }}" method="get">
+                <input class="form-control" type="text" name="q" placeholder="Search items…">
+                <select class="form-select" name="category" style="max-width:160px;">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+            </form>
+
+            <div class="d-flex justify-content-between align-items-center mb-3 fade-up">
+                <h5 class="section-title mb-0"><i class="fas fa-store me-2" style="color:var(--c-primary);"></i>Available Items</h5>
+                <span class="badge" style="background:rgba(108,99,255,0.2);color:var(--c-primary);">{{ available_items|length }} shown</span>
+            </div>
+
+            {% if available_items %}
+            <div class="row g-3">
+                {% for item in available_items %}
+                <div class="col-sm-6 col-lg-4 fade-up" style="animation-delay:{{ loop.index0 * 0.04 }}s;">
+                    <div class="card h-100" style="position:relative;">
+                        <!-- Wishlist button -->
+                        <form action="{{ url_for('wishlist_toggle', item_id=item.id) }}" method="post" style="position:absolute;top:10px;right:10px;z-index:2;">
+                            <button type="submit" class="wishlist-btn {% if item.id in wishlist_ids %}active{% endif %}" title="Wishlist">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </form>
+                        <div style="overflow:hidden;">
+                            <a href="{{ url_for('item_detail', item_id=item.id) }}" class="text-decoration-none">
+                                <img src="{{ url_for('static', filename=item.image_url) }}"
+                                     class="item-img" alt="{{ item.title }}"
+                                     onerror="this.src='https://placehold.co/400x200/1a1d27/6c63ff?text=No+Image'">
+                            </a>
+                        </div>
+                        <div class="card-body d-flex flex-column p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <h6 class="card-title mb-0" style="font-size:0.9rem;">{{ item.title }}</h6>
+                                <span class="badge cond-{{ item.item_condition }} ms-1" style="white-space:nowrap;font-size:0.68rem;">{{ item.item_condition|replace('_',' ')|title }}</span>
+                            </div>
+                            <p class="text-muted mb-2" style="font-size:0.8rem;flex-grow:1;">
+                                {{ item.description[:70] }}{% if item.description|length > 70 %}…{% endif %}
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center mt-auto">
+                                <span class="item-price">UGX {{ "{:,.0f}".format(item.price) }}</span>
+                                <span style="font-size:0.75rem;color:var(--c-muted);">
+                                    <i class="fas fa-tag me-1"></i>{{ item.category }}
+                                </span>
+                            </div>
+                            <div class="d-flex gap-2 mt-2">
+                                <a href="{{ url_for('item_detail', item_id=item.id) }}" class="btn btn-outline-primary btn-sm flex-grow-1">
+                                    <i class="fas fa-eye me-1"></i>View
+                                </a>
+                                <form action="{{ url_for('add_to_cart', item_id=item.id) }}" method="post" style="flex-grow:1;">
+                                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                                        <i class="fas fa-cart-plus me-1"></i>Cart
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if total_pages > 1 %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page > 1 %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page-1 }}">‹</a></li>
+                    {% endif %}
+                    {% for p in range(1, total_pages+1) %}
+                    <li class="page-item {% if p==page %}active{% endif %}">
+                        <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+                    </li>
+                    {% endfor %}
+                    {% if page < total_pages %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page+1 }}">›</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="card text-center py-5 fade-up">
+                <i class="fas fa-box-open fa-3x mb-3" style="color:var(--c-muted);"></i>
+                <h5>No items available right now</h5>
+                <p class="text-muted">Check back later or be the first to list!</p>
+            </div>
+            {% endif %}
+
+        {% else %}
+        <!-- SELLER view -->
+            <div class="d-flex justify-content-between align-items-center mb-3 fade-up">
+                <h5 class="section-title mb-0"><i class="fas fa-boxes me-2" style="color:var(--c-success);"></i>Your Listings</h5>
+                <span class="badge" style="background:rgba(34,197,94,0.2);color:var(--c-success);">{{ user_items|length }} items</span>
+            </div>
+
+            {% if user_items %}
+            <div class="row g-3">
+                {% for item in user_items %}
+                <div class="col-md-6 fade-up" style="animation-delay:{{ loop.index0 * 0.05 }}s;">
+                    <div class="card">
+                        <div class="row g-0">
+                            <div class="col-4" style="overflow:hidden;max-height:160px;">
+                                <img src="{{ url_for('static', filename=item.image_url) }}"
+                                     class="img-fluid h-100" style="object-fit:cover;width:100%;"
+                                     alt="{{ item.title }}"
+                                     onerror="this.src='https://placehold.co/200x160/1a1d27/6c63ff?text=No+Image'">
+                            </div>
+                            <div class="col-8">
+                                <div class="card-body p-3">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <h6 class="card-title mb-0" style="font-size:0.9rem;">{{ item.title }}</h6>
+                                        <span class="badge status-{{ item.status }}" style="font-size:0.68rem;">{{ item.status|title }}</span>
+                                    </div>
+                                    <div class="item-price mb-1" style="font-size:1rem;">UGX {{ "{:,.0f}".format(item.price) }}</div>
+                                    <div style="font-size:0.75rem;color:var(--c-muted);">
+                                        <i class="fas fa-tag me-1"></i>{{ item.category }} ·
+                                        <i class="fas fa-eye me-1"></i>{{ item.views }} views
+                                    </div>
+                                    {% if item.status == 'available' %}
+                                    <div class="d-flex gap-2 mt-2">
+                                        <a href="{{ url_for('edit_item', item_id=item.id) }}" class="btn btn-warning btn-sm flex-grow-1">
+                                            <i class="fas fa-edit me-1"></i>Edit
+                                        </a>
+                                        <form action="{{ url_for('delete_item', item_id=item.id) }}" method="post"
+                                              onsubmit="return confirm('Delete this item?');" style="flex-grow:1;">
+                                            <button type="submit" class="btn btn-danger btn-sm w-100">
+                                                <i class="fas fa-trash me-1"></i>Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card text-center py-5 fade-up">
+                <i class="fas fa-boxes fa-3x mb-3" style="color:var(--c-muted);"></i>
+                <h5>Nothing listed yet</h5>
+                <p class="text-muted mb-3">Start selling by adding your first item!</p>
+                <a href="{{ url_for('add_item') }}" class="btn btn-success pulse-btn mx-auto" style="max-width:200px;">
+                    <i class="fas fa-plus me-1"></i>Add First Item
+                </a>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadStats() {
+    try {
+        const r = await fetch('{{ url_for("api_stats") }}');
+        const d = await r.json();
+        document.getElementById('stat-active').textContent    = d.active_listings;
+        document.getElementById('stat-purchases').textContent = d.purchases_made;
+        document.getElementById('stat-pending').textContent   = d.pending_transactions;
+        document.getElementById('stat-earnings').textContent  = 'UGX ' + Number(d.total_earnings).toLocaleString('en-UG', {maximumFractionDigits:0});
+    } catch(e) {
+        ['stat-active','stat-earnings','stat-purchases','stat-pending'].forEach(id=>{
+            document.getElementById(id).textContent = '–';
+        });
+    }
+}
+loadStats();
+setInterval(loadStats, 30000);
+</script>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Add Item – UniTrade{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7 fade-up">
+        <div class="card p-4">
+            <div class="mb-4">
+                <h2 style="font-weight:800;letter-spacing:-0.5px;"><i class="fas fa-plus-circle me-2" style="color:var(--c-success);"></i>Add New Item</h2>
+                <p class="text-muted" style="font-size:0.875rem;">Fill in the details below to list your item for sale.</p>
+            </div>
+
+            <form method="post" action="{{ url_for('add_item') }}" enctype="multipart/form-data" novalidate>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Item Title <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="title" placeholder="e.g. Calculus Textbook 3rd Edition" required>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label class="form-label">Category <span class="text-danger">*</span></label>
+                        <select class="form-select" name="category" required>
+                            <option value="" disabled selected>Select category…</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat }}">{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <label class="form-label">Condition <span class="text-danger">*</span></label>
+                        <select class="form-select" name="item_condition" required>
+                            <option value="" disabled selected>Select condition…</option>
+                            {% for val, label in conditions %}
+                            <option value="{{ val }}">{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Price (UGX) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="background:var(--c-surface2);border-color:var(--c-border);color:var(--c-muted);">UGX</span>
+                            <input type="number" class="form-control" name="price" min="0" step="100" placeholder="e.g. 25000" required>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="4"
+                                  placeholder="Describe the item — condition details, any damage, reason for selling…"></textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Item Photo</label>
+                        <div class="mt-1">
+                            <input type="file" class="form-control" name="item_image" id="imageInput"
+                                   accept=".png,.jpg,.jpeg,.gif,.webp" onchange="previewImage(event)">
+                            <small class="form-text">JPG, PNG, GIF or WebP — max 16 MB</small>
+                        </div>
+                        <div id="imagePreview" style="display:none;margin-top:0.75rem;">
+                            <img id="previewImg" style="max-height:200px;border-radius:var(--radius);border:1px solid var(--c-border);" alt="Preview">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary flex-grow-1">Cancel</a>
+                    <button type="submit" class="btn btn-success flex-grow-1 pulse-btn">
+                        <i class="fas fa-check me-1"></i>List Item
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function previewImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        document.getElementById('previewImg').src = e.target.result;
+        document.getElementById('imagePreview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+}
+</script>
+{% endblock %}

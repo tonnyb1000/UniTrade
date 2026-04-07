@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Register – UniTrade{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6 fade-up">
+        <div class="card p-4">
+            <div class="text-center mb-4">
+                <i class="fas fa-user-plus fa-2x mb-2" style="color:var(--c-primary);"></i>
+                <h2 style="font-weight:800;letter-spacing:-0.5px;">Create Account</h2>
+                <p style="color:var(--c-muted);font-size:0.875rem;">Join the UniTrade campus marketplace</p>
+            </div>
+
+            <form method="post" action="{{ url_for('register') }}" novalidate>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label class="form-label">First Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="first_name" placeholder="John" required>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="last_name" placeholder="Doe" required>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Username <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text" style="background:var(--c-surface2);border-color:var(--c-border);color:var(--c-muted);">@</span>
+                            <input type="text" class="form-control" name="username" placeholder="johndoe" required>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" name="email" placeholder="john@university.edu" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Password <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" name="password" id="reg-pwd" placeholder="Min. 6 characters" required minlength="6">
+                            <button type="button" class="input-group-text" style="background:var(--c-surface2);border-color:var(--c-border);color:var(--c-muted);cursor:pointer;" onclick="togglePwd()">
+                                <i class="fas fa-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">University</label>
+                        <input type="text" class="form-control" name="university" placeholder="Makerere University">
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Student ID</label>
+                        <input type="text" class="form-control" name="student_id" placeholder="21/U/1234">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Phone (optional)</label>
+                        <input type="text" class="form-control" name="phone" placeholder="+256 700 000000">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 btn-lg mt-4">
+                    <i class="fas fa-rocket me-2"></i>Create Account
+                </button>
+            </form>
+
+            <hr>
+            <p class="text-center mb-0" style="font-size:0.875rem;color:var(--c-muted);">
+                Already have an account?
+                <a href="{{ url_for('login') }}" style="color:var(--c-primary);font-weight:600;">Sign in</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function togglePwd() {
+    const pwd = document.getElementById('reg-pwd');
+    const icon = document.getElementById('eyeIcon');
+    if (pwd.type === 'password') {
+        pwd.type = 'text'; icon.classList.replace('fa-eye','fa-eye-slash');
+    } else {
+        pwd.type = 'password'; icon.classList.replace('fa-eye-slash','fa-eye');
+    }
+}
+</script>
+{% endblock %}

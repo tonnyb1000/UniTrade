@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}UniTrade – Campus Marketplace{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}UniTrade – the trusted peer-to-peer trading platform for university students.{% endblock %}">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* ── Design Tokens ── */
+        :root {
+            --c-bg:        #0f1117;
+            --c-surface:   #1a1d27;
+            --c-surface2:  #22263a;
+            --c-border:    rgba(255,255,255,0.08);
+            --c-primary:   #6c63ff;
+            --c-primary-d: #5046e4;
+            --c-accent:    #ff6b6b;
+            --c-success:   #22c55e;
+            --c-warning:   #f59e0b;
+            --c-info:      #38bdf8;
+            --c-text:      #e2e8f0;
+            --c-muted:     #94a3b8;
+            --radius:      14px;
+            --radius-sm:   8px;
+            --shadow:      0 4px 24px rgba(0,0,0,0.4);
+            --shadow-lg:   0 12px 48px rgba(0,0,0,0.5);
+            --transition:  all 0.25s cubic-bezier(.4,0,.2,1);
+        }
+
+        /* ── Reset & Base ── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--c-bg);
+            color: var(--c-text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--c-bg); }
+        ::-webkit-scrollbar-thumb { background: var(--c-surface2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--c-primary); }
+
+        /* ── Navbar ── */
+        .navbar {
+            background: rgba(26,29,39,0.95) !important;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--c-border);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-brand {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--c-primary), var(--c-info));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transition: var(--transition);
+        }
+        .navbar-brand:hover { transform: scale(1.03); }
+
+        .nav-link {
+            color: var(--c-muted) !important;
+            font-weight: 500;
+            padding: 0.4rem 0.8rem !important;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+        .nav-link:hover { color: var(--c-text) !important; background: var(--c-surface2); }
+
+        /* Search bar in navbar */
+        .navbar-search { max-width: 320px; }
+        .navbar-search .form-control {
+            background: var(--c-surface2);
+            border: 1px solid var(--c-border);
+            color: var(--c-text);
+            border-radius: 50px 0 0 50px;
+            padding: 0.45rem 1rem;
+            font-size: 0.875rem;
+        }
+        .navbar-search .form-control:focus {
+            box-shadow: none;
+            border-color: var(--c-primary);
+            background: var(--c-surface);
+        }
+        .navbar-search .btn {
+            border-radius: 0 50px 50px 0;
+            padding: 0.45rem 1rem;
+            background: var(--c-primary);
+            border-color: var(--c-primary);
+        }
+        .navbar-search .btn:hover { background: var(--c-primary-d); }
+
+        /* Mode pill in navbar */
+        .mode-pill {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ── Dropdown ── */
+        .dropdown-menu {
+            background: var(--c-surface);
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            padding: 0.5rem;
+        }
+        .dropdown-item {
+            color: var(--c-text);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            padding: 0.5rem 0.85rem;
+        }
+        .dropdown-item:hover { background: var(--c-surface2); color: var(--c-text); }
+        .dropdown-divider { border-color: var(--c-border); }
+
+        /* ── Cards ── */
+        .card {
+            background: var(--c-surface);
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        .card:hover {
+            border-color: rgba(108,99,255,0.4);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+        .card-title { font-weight: 700; color: var(--c-text); }
+        .card-body { color: var(--c-text); }
+        .text-muted { color: var(--c-muted) !important; }
+
+        /* ── Buttons ── */
+        .btn {
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            transition: var(--transition);
+            font-size: 0.875rem;
+            padding: 0.5rem 1.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--c-primary), var(--c-primary-d));
+            border: none;
+            color: #fff;
+        }
+        .btn-primary:hover { background: linear-gradient(135deg, var(--c-primary-d), #3b30cc); color: #fff; }
+
+        .btn-success { background: linear-gradient(135deg, #22c55e, #16a34a); border: none; color: #fff; }
+        .btn-success:hover { background: linear-gradient(135deg, #16a34a, #15803d); color: #fff; }
+
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); border: none; color: #fff; }
+        .btn-danger:hover { background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff; }
+
+        .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #fff; }
+        .btn-warning:hover { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
+
+        .btn-outline-primary {
+            border: 1px solid var(--c-primary);
+            color: var(--c-primary);
+            background: transparent;
+        }
+        .btn-outline-primary:hover { background: var(--c-primary); color: #fff; }
+
+        .btn-outline-secondary {
+            border: 1px solid var(--c-border);
+            color: var(--c-muted);
+            background: transparent;
+        }
+        .btn-outline-secondary:hover { background: var(--c-surface2); color: var(--c-text); }
+
+        /* ── Form Controls ── */
+        .form-control, .form-select {
+            background: var(--c-surface2);
+            border: 1px solid var(--c-border);
+            color: var(--c-text);
+            border-radius: var(--radius-sm);
+            padding: 0.6rem 0.9rem;
+            font-size: 0.9rem;
+        }
+        .form-control:focus, .form-select:focus {
+            background: var(--c-surface);
+            border-color: var(--c-primary);
+            box-shadow: 0 0 0 3px rgba(108,99,255,0.2);
+            color: var(--c-text);
+        }
+        .form-control::placeholder { color: var(--c-muted); }
+        .form-label { font-weight: 600; font-size: 0.875rem; color: var(--c-muted); margin-bottom: 0.4rem; }
+        .form-text { color: var(--c-muted); font-size: 0.8rem; }
+
+        /* ── Badges ── */
+        .badge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.3em 0.7em;
+            border-radius: 20px;
+        }
+
+        /* ── Alerts ── */
+        .alert {
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 0.875rem;
+        }
+        .alert-success { background: rgba(34,197,94,0.15); color: #4ade80; border-left: 3px solid #22c55e; }
+        .alert-danger  { background: rgba(239,68,68,0.15);  color: #f87171; border-left: 3px solid #ef4444; }
+        .alert-warning { background: rgba(245,158,11,0.15); color: #fbbf24; border-left: 3px solid #f59e0b; }
+        .alert-info    { background: rgba(56,189,248,0.15); color: #7dd3fc; border-left: 3px solid #38bdf8; }
+
+        /* ── Stat Cards ── */
+        .stat-card {
+            border-radius: var(--radius);
+            padding: 1.4rem;
+            border: 1px solid var(--c-border);
+            background: var(--c-surface);
+            transition: var(--transition);
+        }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+        .stat-card .stat-num { font-size: 2rem; font-weight: 800; line-height: 1; }
+        .stat-card .stat-label { font-size: 0.8rem; font-weight: 500; color: var(--c-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.25rem; }
+        .stat-card .stat-icon { font-size: 2rem; opacity: 0.8; }
+
+        .stat-card.purple { background: linear-gradient(135deg,#4f46e5,#7c3aed); border-color: transparent; }
+        .stat-card.teal   { background: linear-gradient(135deg,#0d9488,#0891b2); border-color: transparent; }
+        .stat-card.pink   { background: linear-gradient(135deg,#db2777,#be185d); border-color: transparent; }
+        .stat-card.orange { background: linear-gradient(135deg,#ea580c,#d97706); border-color: transparent; }
+
+        /* ── Item Price ── */
+        .item-price { color: var(--c-accent); font-weight: 700; font-size: 1.15rem; }
+        .item-price-ugx::before { content: "UGX "; font-size: 0.8em; opacity: 0.8; }
+
+        /* ── Item Image ── */
+        .item-img {
+            width: 100%; height: 200px; object-fit: cover;
+            background: var(--c-surface2);
+            transition: transform 0.4s ease;
+        }
+        .card:hover .item-img { transform: scale(1.04); }
+
+        /* ── Status Badges ── */
+        .status-available { background: rgba(34,197,94,0.2);  color: #4ade80; }
+        .status-pending   { background: rgba(245,158,11,0.2); color: #fbbf24; }
+        .status-sold      { background: rgba(148,163,184,0.2); color: #94a3b8; }
+
+        /* ── Condition Badge ── */
+        .cond-new      { background: rgba(56,189,248,0.2); color: #7dd3fc; }
+        .cond-like_new { background: rgba(34,197,94,0.2);  color: #4ade80; }
+        .cond-good     { background: rgba(245,158,11,0.2); color: #fbbf24; }
+        .cond-fair     { background: rgba(239,68,68,0.2);  color: #f87171; }
+
+        /* ── Stars ── */
+        .star-filled { color: #f59e0b; }
+        .star-empty  { color: var(--c-surface2); }
+
+        /* ── Section headers ── */
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        /* ── Pulse animation (CTAs) ── */
+        @keyframes pulse-glow {
+            0%   { box-shadow: 0 0 0 0 rgba(108,99,255,0.6); }
+            70%  { box-shadow: 0 0 0 10px rgba(108,99,255,0); }
+            100% { box-shadow: 0 0 0 0 rgba(108,99,255,0); }
+        }
+        .pulse-btn { animation: pulse-glow 2.2s infinite; }
+
+        /* ── Fade/slide animations ── */
+        @keyframes fadeUp {
+            from { opacity:0; transform:translateY(20px); }
+            to   { opacity:1; transform:translateY(0); }
+        }
+        .fade-up { animation: fadeUp 0.5s ease-out forwards; }
+        .delay-1 { animation-delay: 0.08s; opacity:0; }
+        .delay-2 { animation-delay: 0.16s; opacity:0; }
+        .delay-3 { animation-delay: 0.24s; opacity:0; }
+        .delay-4 { animation-delay: 0.32s; opacity:0; }
+
+        /* ── Footer ── */
+        footer {
+            background: var(--c-surface);
+            border-top: 1px solid var(--c-border);
+            margin-top: auto;
+            padding: 2rem 0;
+            font-size: 0.875rem;
+            color: var(--c-muted);
+        }
+
+        /* ── Hr ── */
+        hr { border-color: var(--c-border); }
+
+        /* ── Pagination ── */
+        .page-link {
+            background: var(--c-surface2);
+            border-color: var(--c-border);
+            color: var(--c-muted);
+        }
+        .page-link:hover { background: var(--c-primary); border-color: var(--c-primary); color: #fff; }
+        .page-item.active .page-link { background: var(--c-primary); border-color: var(--c-primary); }
+
+        /* ── Wishlist heart ── */
+        .wishlist-btn {
+            position: absolute; top: 10px; right: 10px;
+            width: 34px; height: 34px;
+            border-radius: 50%;
+            background: rgba(15,17,23,0.75);
+            backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            border: none; cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+            color: var(--c-muted);
+            z-index: 2;
+        }
+        .wishlist-btn.active { color: var(--c-accent); }
+        .wishlist-btn:hover  { transform: scale(1.15); color: var(--c-accent); }
+
+        /* ─── Responsive ── */
+        @media (max-width: 768px) {
+            .navbar-search { display:none; }
+        }
+    </style>
+    {% block head %}{% endblock %}
+</head>
+<body>
+<!-- ── NAVBAR ── -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="{{ url_for('index') }}">
+            <i class="fas fa-exchange-alt me-2" style="background: inherit; -webkit-text-fill-color: unset; color: var(--c-primary);"></i>UniTrade
+        </a>
+
+        <!-- Search bar (desktop) -->
+        {% if session.loggedin %}
+        <form class="d-flex navbar-search mx-3" action="{{ url_for('search') }}" method="get">
+            <input class="form-control" type="search" name="q" placeholder="Search items…"
+                   value="{{ request.args.get('q','') }}">
+            <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+        </form>
+        {% endif %}
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon" style="filter:invert(1);"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center gap-1">
+                {% if session.loggedin %}
+                    <!-- Mode indicator -->
+                    <li class="nav-item me-1">
+                        <span class="mode-pill badge {% if session.mode == 'buyer' %}bg-info{% else %}bg-success{% endif %}">
+                            {{ session.mode|title }} Mode
+                        </span>
+                    </li>
+
+                    <!-- Cart -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('cart') }}" id="navCartLink">
+                            <i class="fas fa-shopping-cart me-1"></i>
+                            <span class="badge bg-danger" id="cart-badge">{{ session.cart|length if session.cart else 0 }}</span>
+                        </a>
+                    </li>
+
+                    <!-- Notifications -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('notifications') }}" id="navNotifLink">
+                            <i class="fas fa-bell me-1"></i>
+                            {% if notif_count > 0 %}
+                            <span class="badge bg-warning text-dark">{{ notif_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+
+                    <!-- User dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" id="userDropdown">
+                            <i class="fas fa-user-circle me-1"></i>{{ session.first_name }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ url_for('dashboard') }}"><i class="fas fa-tachometer-alt me-2 text-primary"></i>Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('my_orders') }}"><i class="fas fa-clipboard-list me-2 text-info"></i>My Orders</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('wishlist') }}"><i class="fas fa-heart me-2 text-danger"></i>Wishlist</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('profile') }}"><i class="fas fa-id-card me-2 text-success"></i>Profile</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <div class="px-2 pb-1 d-flex gap-1">
+                                    <a href="{{ url_for('switch_mode', mode='buyer') }}" class="btn btn-sm flex-grow-1 {% if session.mode=='buyer' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+                                        <i class="fas fa-shopping-cart me-1"></i>Buy
+                                    </a>
+                                    <a href="{{ url_for('switch_mode', mode='seller') }}" class="btn btn-sm flex-grow-1 {% if session.mode=='seller' %}btn-success{% else %}btn-outline-secondary{% endif %}">
+                                        <i class="fas fa-store me-1"></i>Sell
+                                    </a>
+                                </div>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt me-1"></i>Login</a></li>
+                    <li class="nav-item"><a class="btn btn-primary ms-2" href="{{ url_for('register') }}"><i class="fas fa-user-plus me-1"></i>Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- ── FLASH MESSAGES ── -->
+<div class="container mt-3" id="flash-wrapper">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category=='error' else category }} alert-dismissible show fade-up" role="alert" style="margin-bottom:0.5rem;">
+                <i class="fas fa-{{ 'times-circle' if category=='error' else 'check-circle' if category=='success' else 'exclamation-triangle' if category=='warning' else 'info-circle' }} me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<!-- ── MAIN CONTENT ── -->
+<main class="container py-4 flex-grow-1">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- ── FOOTER ── -->
+<footer>
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+        <div>
+            <span style="font-weight:700; color: var(--c-text);">
+                <i class="fas fa-exchange-alt me-1" style="color:var(--c-primary);"></i>UniTrade
+            </span>
+            &nbsp;— Campus trading, simplified.
+        </div>
+        <div>&copy; 2026 UniTrade · Built with <i class="fas fa-heart" style="color:var(--c-accent);"></i> for students</div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Auto-dismiss flash alerts after 5 s
+    document.querySelectorAll('.alert').forEach(el => {
+        setTimeout(() => {
+            const bsAlert = bootstrap.Alert.getOrCreateInstance(el);
+            if (bsAlert) bsAlert.close();
+        }, 5000);
+    });
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

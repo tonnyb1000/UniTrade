@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Notifications – UniTrade{% endblock %}
+
+{% block content %}
+<h1 class="section-title mb-4 fade-up"><i class="fas fa-bell me-2" style="color:var(--c-warning);"></i>Notifications</h1>
+
+{% if notifications %}
+<div class="card p-0 overflow-hidden fade-up">
+    {% for notif in notifications %}
+    <div class="d-flex align-items-start gap-3 p-3 {% if not loop.last %}border-bottom{% endif %}"
+         style="border-color:var(--c-border) !important;{% if not notif.is_read %}background:rgba(108,99,255,0.06);{% endif %}">
+        <div style="width:36px;height:36px;border-radius:50%;background:{% if not notif.is_read %}var(--c-primary){% else %}var(--c-surface2){% endif %};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i class="fas fa-bell" style="font-size:0.875rem;color:{% if not notif.is_read %}#fff{% else %}var(--c-muted){% endif %};"></i>
+        </div>
+        <div style="flex-grow:1;">
+            {% if notif.link %}
+            <a href="{{ notif.link }}" class="text-decoration-none" style="color:var(--c-text);font-size:0.9rem;font-weight:{% if not notif.is_read %}600{% else %}400{% endif %};">
+                {{ notif.message }}
+            </a>
+            {% else %}
+            <div style="font-size:0.9rem;font-weight:{% if not notif.is_read %}600{% else %}400{% endif %};">{{ notif.message }}</div>
+            {% endif %}
+            <div style="font-size:0.75rem;color:var(--c-muted);margin-top:0.2rem;">
+                {{ notif.created_at.strftime('%d %b %Y, %H:%M') if notif.created_at else '' }}
+            </div>
+        </div>
+        {% if not notif.is_read %}
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--c-primary);margin-top:0.4rem;flex-shrink:0;"></div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card text-center py-5 fade-up">
+    <i class="fas fa-bell-slash fa-3x mb-3" style="color:var(--c-muted);"></i>
+    <h5>No notifications</h5>
+    <p class="text-muted">You're all caught up! Activity will appear here.</p>
+</div>
+{% endif %}
+{% endblock %}
